@@ -14,3 +14,9 @@ To learn more about PPO and its applications, visit this [Hugging Face blog post
 <img src="ppo.png" alt="PPO Architecture" width="600">
 
 *Image credit: [ResearchGate](https://www.researchgate.net/figure/The-actor-critic-proximal-policy-optimization-Actor-Critic-PPO-algorithm-process_fig3_339651408)*
+
+## Pseudocode
+
+<img src="pseudocode_ppo.png" alt="PPO Pseudocode" width="600">
+
+*Image credit: [OpenAI Spinning Up](https://spinningup.openai.com/en/latest/algorithms/ppo.html)*
