@@ -9,15 +9,15 @@ rng = np.random.default_rng()
 class Memory(object):
     def __init__(self, mem_size, input_shape, nr_actions):
 
-        # constant
+        # Constants
         self.mem_size = mem_size
         self.input_shape = input_shape
         self.nr_actions = nr_actions
 
-        # counter
+        # Counter
         self.mem_cntr = 0
 
-        # values
+        # Values
         self.state_memory = np.zeros((self.mem_size, self.input_shape))
         self.new_state_memory = np.zeros((self.mem_size, self.input_shape))
         self.action_memory = np.zeros((self.mem_size, self.nr_actions))
@@ -26,17 +26,17 @@ class Memory(object):
 
     def store_transition(self, state, action, reward, new_state, done):
 
-        # index
+        # Index
         index = self.mem_cntr
 
-        # storing
+        # Storing
         self.state_memory[index] = state
         self.new_state_memory[index] = new_state
         self.reward_memory[index] = reward
         self.action_memory[index] = action
         self.terminal_memory[index] = 1 - int(done)
 
-        # update
+        # Update
         self.mem_cntr += 1
 
     def generate(self):
@@ -53,7 +53,7 @@ class PPO(object):
     def __init__(self, GAMMA, LAM, EPSILON, C_LR, A_LR, input_dims, action_dims, nr_actions,  
         actor_dims, critic_dims, EPOCHs, max_size=32, chkpt_dir='tmp'):
 
-        # constants
+        # Constants
         self.GAMMA = GAMMA
         self.lam = LAM
         self.epochs = EPOCHs
@@ -79,25 +79,25 @@ class PPO(object):
         self.action = tf.placeholder(tf.float32, shape=(None, self.nr_actions), name='actions')
 
 
-        # critic network & advantage
+        # Critic network & Advantage Estimate
         self.v = self.build_critic('critic')
 
         self.advantage = self.disc_reward - self.v
 
 
-        # actor network 
+        # Actor network 
         probs = self.build_actor('probs', trainable=True)
 
         old_probs = self.build_actor('old_probs', trainable=False)
 
 
-        # distribution and sampling
+        # Distribution and Sampling
         old_pi = tfp.distributions.Categorical(probs = old_probs)
 
         self.sample_action = tf.squeeze(old_pi.sample())
 
 
-        # parameters & update
+        # Parameters & Update
         pi_params = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope='probs')
 
         oldpi_params = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope='old_probs')
@@ -105,13 +105,13 @@ class PPO(object):
         self.update_oldpi = [oldpi.assign(pi) for oldpi, pi in zip(oldpi_params, pi_params)]
 
 
-        # critic train
+        # Train - Critic
         self.closs = tf.reduce_mean(tf.square(self.advantage)) # squaure ---> mean
 
         self.ctrain = tf.train.AdamOptimizer(C_LR).minimize(self.closs)
 
 
-        # actor loss
+        # Train - Actor
         self.adv = tf.placeholder(tf.float32, shape=(None, self.nr_actions), name='advantage')
 
         log_prob_p =[]
@@ -149,9 +149,9 @@ class PPO(object):
         dense1 = tf.layers.dense(self.input, units=self.adims1, activation='tanh', trainable=trainable)
         dense2 = tf.layers.dense(dense1, units=self.adims2, activation='tanh', trainable=trainable)
 
-        p = tf.layers.dense(dense2, units=self.action_dims, activation='softmax', trainable=trainable)
+        out = tf.layers.dense(dense2, units=self.action_dims, activation='softmax', trainable=trainable)
 
-        return p
+        return out
 
     def build_critic(self, name):
         
